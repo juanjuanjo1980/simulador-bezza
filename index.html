@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Bezza</title>
+    <!-- Estilos de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 420px;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            background-color: #FAFAFA;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s ease;
+            appearance: none;
+        }
+
+        input[type="number"] {
+            padding-left: 30px;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            background-color: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: '▾';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            font-size: 0.8rem;
+        }
+
+        .result-box {
+            margin-top: 24px;
+            background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
+            padding: 20px;
+            border-radius: 16px;
+            color: #FFFFFF;
+            text-align: center;
+        }
+
+        .result-box span {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        .result-box strong {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .details {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .details span strong {
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-card">
+        <div class="header">
+            <h1>Simulador Bezza</h1>
+            <p>Calculadora de cobros y comisiones</p>
+        </div>
+
+        <div class="form-group">
+            <label for="monto">Monto a recibir en mano</label>
+            <div class="input-wrapper">
+                <span class="currency-symbol">$</span>
+                <input type="number" id="monto" placeholder="0.00" oninput="calcular()">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="plan">Método / Plan de pago</label>
+            <div class="select-wrapper">
+                <select id="plan" onchange="cargarPlazos(); calcular();">
+                    <option value="qr">QR PCT</option>
+                    <option value="1c">1 Cuota (Común)</option>
+                    <option value="fijas">Cuotas Fijas (2, 3, 6, 9, 12)</option>
+                    <option value="p3">3 Cuotas Sin Interés</option>
+                    <option value="p6">6 Cuotas Sin Interés</option>
+                    <option value="p9">9 Cuotas Sin Interés</option>
+                    <option value="p12">12 Cuotas Sin Interés</option>
+                    <option value="com1c">Comisiones 1 Cuota</option>
+                    <option value="planz">Comisiones Plan Z</option>
+                    <option value="nar3">Naranja 3 Cuotas Sin Interés</option>
+                    <option value="nar6">Naranja 6 Cuotas Sin Interés</option>
+                    <option value="nar12">Naranja 12 Cuotas Sin Interés</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="plazo">Plazo de acreditación</label>
+            <div class="select-wrapper">
+                <select id="plazo" onchange="calcular()"></select>
+            </div>
+        </div>
+
+        <div class="result-box">
+            <span>Importe a cobrar al cliente</span>
+            <strong id="total">$0.00</strong>
+        </div>
+
+        <div class="details">
+            <span>Recargo aplicado: <strong id="recargo">0%</strong></span>
+            <span>Comisión + IVA: <strong id="comision">$0.00</strong></span>
+        </div>
+    </div>
+
+    <script>
+        const tasas = {
+            qr: { "Inmediata": 1.009775 },
+            "1c": { "Inmediata": 1.067007, "2 días": 1.061525, "7 días": 1.048063, "15 días": 1.029780, "21 días": 1.018360, "30 días": 1.012124, "45 días": 1.000000 },
+            fijas: { "Inmediata": 1.080963, "2 días": 1.068386, "7 días": 1.054751, "15 días": 1.037537, "21 días": 1.031065, "30 días": 1.017107, "45 días": 1.000000 },
+            p3: { "Inmediata": 1.182587, "2 días": 1.167551, "7 días": 1.151286, "15 días": 1.130807, "21 días": 1.123124, "30 días": 1.106582, "45 días": 1.086363 },
+            p6: { "Inmediata": 1.272148, "2 días": 1.254765, "7 días": 1.235999, "15 días": 1.212427, "21 días": 1.203598, "30 días": 1.184621, "45 días": 1.161479 },
+            p9: { "Inmediata": 1.401121, "2 días": 1.380064, "7 días": 1.357397, "15 días": 1.329020, "21 días": 1.318419, "30 días": 1.295683, "45 días": 1.268049 },
+            p12: { "Inmediata": 1.363894, "2 días": 1.343932, "7 días": 1.322428, "15 días": 1.295479, "21 días": 1.285405, "30 días": 1.263783, "45 días": 1.237480 },
+            com1c: { "Inmediata": 1.137500, "2 días": 1.126645, "7 días": 1.107026, "15 días": 1.079551, "21 días": 1.058805, "30 días": 1.037537, "45 días": 1.014609 },
+            planz: { "Inmediata": 1.148566, "2 días": 1.134377, "7 días": 1.119018, "15 días": 1.082379, "21 días": 1.069769, "30 días": 1.057586, "45 días": 1.046736 },
+            nar3: { "Inmediata": 1.203774, "2 días": 1.196801, "7 días": 1.181403, "15 días": 1.156603, "21 días": 1.140640, "30 días": 1.119018, "45 días": 1.092394 },
+            nar6: { "Inmediata": 1.413825, "2 días": 1.404216, "7 días": 1.383067, "15 días": 1.349198, "21 días": 1.327526, "30 días": 1.298329, "45 días": 1.262625 },
+            nar12: { "Inmediata": 1.846616, "2 días": 1.830258, "7 días": 1.794491, "15 días": 1.737888, "21 días": 1.702096, "30 días": 1.654394, "45 días": 1.596855 }
+        };
+
+        function cargarPlazos() {
+            const plan = document.getElementById('plan').value;
+            const plazoSelect = document.getElementById('plazo');
+            plazoSelect.innerHTML = '';
+            
+            for (let plazo in tasas[plan]) {
+                let opt = document.createElement('option');
+                opt.value = plazo;
+                opt.innerHTML = plazo;
+                plazoSelect.appendChild(opt);
+            }
+        }
+
+        function calcular() {
+            const monto = parseFloat(document.getElementById('monto').value) || 0;
+            const plan = document.getElementById('plan').value;
+            const plazo = document.getElementById('plazo').value;
+            
+            const mult = tasas[plan][plazo] || 1;
+            const totalCobrar = monto * mult;
+            const comisionMonto = totalCobrar - monto;
+            const porcentajeRecargo = ((mult - 1) * 100).toFixed(2);
+
+            document.getElementById('total').innerHTML = `$${totalCobrar.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('recargo').innerHTML = `${porcentajeRecargo}%`;
+            document.getElementById('comision').innerHTML = `$${comisionMonto.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        }
+
+        cargarPlazos();
+    </script>
+</body>
+</html>
